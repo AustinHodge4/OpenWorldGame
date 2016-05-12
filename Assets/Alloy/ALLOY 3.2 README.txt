@@ -1,0 +1,15 @@
+Hi Hi,
+
+Super important note. This release is for Unity 5.2 and up ONLY.
+
+Secondly, you MUST perform a directory blowout of Alloy before installing this version, as a bunch of header structure has changed.
+
+1. Open a BLANK new scene.
+
+2. Select the 'Scripts' and 'Shaders' Directories inside the Alloy directory
+
+3. Delete them
+
+4. Import Alloy 3_2_7_ShadersAndEditorCore.unitypackage
+
+Enjoy

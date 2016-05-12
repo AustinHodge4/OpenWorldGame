@@ -1,0 +1,3 @@
+Visit gfxcave.com for a small tutorial on how to use the lens flares.
+they are all on pure black backgrounds.......so simply changing the blend mode to
+screen in photoshop would make the black disappear and leave the perfect flair.
