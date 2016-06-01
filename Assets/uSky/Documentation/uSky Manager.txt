@@ -49,7 +49,7 @@ Higher values cause more fuzzy and bigger sun spots. A good default value is 0.7
 
 Sun Size
 ------------
-Size of the sun disk. larger value gets bigger sun. The default value is 1.
+Size of the sun spot in the sky. larger value gets bigger sun. The default value is 1.
 
 
 Wavelengths
@@ -61,7 +61,7 @@ This can be very useful in combination with Rayleigh scattering if you choose a 
 
 Sky Tint
 -----------
-Multiply the custom color with exist sky color. It affect the color at the day time only. The default is White.
+It is wavelength dependent. Tweaking these values will shift the colors of sky color. It affects the color at the day time only. The default is White.
 
 
 Ground Color
@@ -137,7 +137,7 @@ There is a limitation that the position of the moon have to be above the horizon
 
 Skybox Material
 -----------------
-It is the Skybox Material of the uSky. 
+It is the uSkybox Material of the uSky. 
 Note: The package included two version of the material. You need to use the correct version that match the version with your Unity Editor. The main different of the Unity 5 material that sky shader will remove sun and mie scatter in reflection probe, that's necessary in order to avoid double highlights for the box projection. Also the Preview window is temporary off for Unity 5 beta.
 
 
@@ -145,10 +145,6 @@ Auto Apply Skybox
 -------------------
 If it is on, it will automatically assign the current skybox material to Render Settings in the Unity Editor.
 
-
-Linear Space
---------------
-Toggle it if you are using Linear color space mode in the Player Settings. In general that linear is essential with physically-based shading workflow, it computes more accurate lighting and result are more realistic to the real world lighting.
 
 Tonemapping
 --------------

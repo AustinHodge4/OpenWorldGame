@@ -30,7 +30,7 @@ Material:
       second: 0.6
     - first:
         name: Mask
-      second: 0.928
+      second: 0.921
     - first:
         name: RotateAround
       second: 0.35
@@ -55,7 +55,7 @@ Material:
     m_Colors:
     - first:
         name: ShadeColorFromSky
-      second: {r: 0.29613832, g: 0.45078585, b: 0.70837593, a: 1}
+      second: {r: 0.0014515306, g: 0.0018054813, b: 0.0026523771, a: 0.125}
     - first:
         name: ShadeColorFromSun
-      second: {r: 0.9473066, g: 0.63759696, b: 0.30054384, a: 1}
+      second: {r: 0.0047755456, g: 0.006810035, b: 0.009276697, a: 0.125}

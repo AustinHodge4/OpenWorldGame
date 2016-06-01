@@ -1,20 +1,20 @@
 Shader "uSky/DistanceCloud" {
 Properties {
 
-    [RangeSlider] Attenuation ("Attenuation", Range(0,5)) = 0.6
-    [RangeSlider] StepSize ("Step size", Range(0.001,0.01)) = 0.004
-    [RangeSlider] AlphaSaturation("Alpha saturation", Range(1,10)) = 2.0
-    [RangeSlider] SunColorMultiplier ("Sun Color multiplier", Range(0,8)) = 4
-    [RangeSlider] SkyColorMultiplier("Sky Color multiplier", Range(0,8)) = 1.5
+    Attenuation ("Attenuation", Range(0,5)) = 0.6
+    StepSize ("Step size", Range(0.001,0.01)) = 0.004
+    AlphaSaturation("Alpha saturation", Range(1,10)) = 2.0
+    SunColorMultiplier ("Sun Color multiplier", Range(0,8)) = 4
+    SkyColorMultiplier("Sky Color multiplier", Range(0,8)) = 1.5
 	[KeywordEnum(Rectangular,Polar)] USKY_MAPPING ("Mapping mode", Float) = 0	
 	CloudSampler ("Texture (R)", 2D) = "white" {}
 	
 	// "Opacity mask" is for blocking the color behind the cloud, useful at night time.
 	// if using "Opacity mask", then requires cloud texture's channel "g" for masking.
 	// if not using "Opacity mask", then set the "Opacity mask" to 0.0 will gain some performance.
-	[RangeSlider] Mask ("Opacity mask (G)", Range (0,1)) = 0.0
+	Mask ("Opacity mask (G)", Range (0,1)) = 0.0
 	// Range 0 ~ 360 for non-animated Rotation
-    [RangeSlider] RotateSpeed("Rotate speed", Range (-1,1)) = 0.0 
+    RotateSpeed("Rotate speed", Range (-1,1)) = 0.0 
 //	[Toggle] USKY_MASK ("Use Opacity mask?", Float) = 0
 
 // make sure following value store in the material if it is not focusing
@@ -22,7 +22,7 @@ Properties {
 [HideInInspector] ShadeColorFromSky ("ShadeColorFromSky",Vector) = (0.58,0.7,0.86,1)
 }
 SubShader {
-Tags { "Queue"="Geometry+502" "RenderType"="Background" }
+Tags { "Queue"="Geometry+501" "RenderType"="Background" }
 
 Blend  SrcAlpha OneMinusSrcAlpha
 
@@ -34,14 +34,13 @@ Pass {
 		#pragma vertex vert
 		#pragma fragment frag
 		#include "UnityCG.cginc"
+//		#include "Lighting.cginc"
 		#pragma multi_compile USKY_MAPPING_RECTANGULAR USKY_MAPPING_POLAR
-//		#pragma multi_compile USKY_MASK_OFF USKY_MASK_ON
 		
 		sampler2D CloudSampler;
 		uniform float3 _SunDir; 
 		float RotateSpeed;
-		half StepSize;
-		half Attenuation, AlphaSaturation, SunColorMultiplier, SkyColorMultiplier, Mask;
+		half Attenuation, StepSize, AlphaSaturation, SunColorMultiplier, SkyColorMultiplier, Mask;
 		uniform half2 _colorCorrection;
 		uniform half3 ShadeColorFromSun, ShadeColorFromSky;
 		float4 CloudSampler_ST;
@@ -57,26 +56,26 @@ Pass {
 		    half2	baseTC	: TEXCOORD0;
 		};
 
-		float4 RotateAroundYInDegrees (float4 vertex, float degrees)
+		float3 RotateAroundYInDegrees (float3 vertex, float degrees)
 		{
 			float alpha = degrees * 3.1416 / 180.0;
 			float sina, cosa;
 			sincos(alpha, sina, cosa);
 			float2x2 m = float2x2(cosa, -sina, sina, cosa);
-			return float4(mul(m, vertex.xz), vertex.yw).xzyw;
+			return float3(mul(m, vertex.xz), vertex.y).xzy;
 		}
 		
 		v2f vert (appdata_t v)
 		{
 		    v2f o;
 
-		    float3 t = RotateAroundYInDegrees(v.vertex, RotateSpeed *_Time.y+ unity_DeltaTime.z).xyz; //  animate rotation 
+		    float3 t = RotateAroundYInDegrees(v.vertex.xyz, RotateSpeed *_Time.y+ unity_DeltaTime.z).xyz; //  animate rotation 
 //			t.y = pow(v.vertex.y, 0.85 );
-//		    t = t * _ProjectionParams.z + _WorldSpaceCameraPos.xyz ; 
-			t = t + _WorldSpaceCameraPos.xyz ; 
+		    t = t * _ProjectionParams.z + _WorldSpaceCameraPos.xyz ; //  camera’s far plane
+//			t = t + _WorldSpaceCameraPos.xyz ; 
 			
 			o.pos = mul (UNITY_MATRIX_MVP, float4(t,1));
-//			o.pos.z = o.pos.w; // avoid front face clipping?
+			o.pos.z = o.pos.w; // avoid front face clipping?
 
 			#ifdef USKY_MAPPING_RECTANGULAR
 				o.baseTC = TRANSFORM_TEX (v.rectangular, CloudSampler);
@@ -99,10 +98,9 @@ Pass {
 			// Alternative for better performance: just tweak the Mask in texture channel "G" directly,
 			// and read the opacity.g directly without using "lerp function" between 2 channels.
 			// so alpha will be:  a = pow( opacity.g, AlphaSaturation );
-//			#ifdef USKY_MASK_ON 
 			if (Mask > 0.02)
 				opacity.r = lerp(opacity.r, opacity.g, Mask); 
-//			#endif
+
 			
 			half density = 0;
 			half2 sampleUV = (half2)0;  
@@ -118,6 +116,9 @@ Pass {
 			half c = exp2( -Attenuation * density);
 			half a = pow( opacity.r, AlphaSaturation );
 			half3 col = lerp( SkyColorMultiplier * ShadeColorFromSky.xyz, SunColorMultiplier * ShadeColorFromSun.xyz, c );
+			
+			// need color correction for linear
+//			half3 col = lerp( SkyColorMultiplier * unity_AmbientSky.xyz, SunColorMultiplier * _LightColor0.rgb, c );
 
 			
 			half4 Color = half4( col, a ) ;

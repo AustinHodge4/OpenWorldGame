@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CarCamera : MonoBehaviour {
+public class CarCamera : MonoBehaviour
+{
 
     public Transform car;
     public float distance = 5.0f;
@@ -62,3 +63,4 @@ public class CarCamera : MonoBehaviour {
         return Mathf.Clamp(angle, min, max);
     }
 }
+

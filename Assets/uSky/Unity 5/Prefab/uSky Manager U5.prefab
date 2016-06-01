@@ -114,23 +114,23 @@ MonoBehaviour:
   SunAnisotropyFactor: 0.76
   SunSize: 1
   Wavelengths: {x: 680, y: 550, z: 440}
-  SkyTint: {r: 0.5019608, g: 0.5019608, b: 0.5019608, a: 1}
+  SkyTint: {r: 0.5, g: 0.5, b: 0.5, a: 1}
   GroundColor: {r: 0.369, g: 0.349, b: 0.341, a: 1}
   m_sunLight: {fileID: 0}
   EnableNightSky: 1
   NightZenithColor:
     key0:
       serializedVersion: 2
-      rgba: 4294967295
+      rgba: 4284696370
     key1:
       serializedVersion: 2
-      rgba: 4294967295
+      rgba: 4287916874
     key2:
       serializedVersion: 2
-      rgba: 0
+      rgba: 9726794
     key3:
       serializedVersion: 2
-      rgba: 0
+      rgba: 6506290
     key4:
       serializedVersion: 2
       rgba: 0
@@ -143,10 +143,10 @@ MonoBehaviour:
     key7:
       serializedVersion: 2
       rgba: 0
-    ctime0: 0
-    ctime1: 65535
-    ctime2: 0
-    ctime3: 0
+    ctime0: 14745
+    ctime1: 16384
+    ctime2: 49151
+    ctime3: 50790
     ctime4: 0
     ctime5: 0
     ctime6: 0
@@ -159,13 +159,13 @@ MonoBehaviour:
     atime5: 0
     atime6: 0
     atime7: 0
-    m_NumColorKeys: 2
+    m_NumColorKeys: 4
     m_NumAlphaKeys: 2
   NightHorizonColor: {r: 0.43, g: 0.47, b: 0.5, a: 1}
   StarIntensity: 1
   OuterSpaceIntensity: 0.25
   MoonInnerCorona: {r: 1, g: 1, b: 1, a: 0.5}
-  MoonOuterCorona: {r: 0.54, g: 0.66, b: 0.75, a: 0.5}
+  MoonOuterCorona: {r: 0.25, g: 0.39, b: 0.5, a: 0.5}
   MoonSize: 0.15
   m_moonLight: {fileID: 100002}
   SkyboxMaterial: {fileID: 2100000, guid: 365d13da5edb94b1fb213612c6c5c366, type: 2}
@@ -187,25 +187,25 @@ MonoBehaviour:
   LightColor:
     key0:
       serializedVersion: 2
-      rgba: 4283188025
+      rgba: 4283253303
     key1:
       serializedVersion: 2
-      rgba: 4280719861
+      rgba: 4283739637
     key2:
       serializedVersion: 2
       rgba: 9490681
     key3:
       serializedVersion: 2
-      rgba: 12246779
+      rgba: 12246780
     key4:
       serializedVersion: 2
       rgba: 9490681
     key5:
       serializedVersion: 2
-      rgba: 2529781
+      rgba: 5549557
     key6:
       serializedVersion: 2
-      rgba: 4997945
+      rgba: 5063223
     key7:
       serializedVersion: 2
       rgba: 0
@@ -228,7 +228,7 @@ MonoBehaviour:
     m_NumColorKeys: 7
     m_NumAlphaKeys: 2
   EnableMoonLighting: 1
-  MoonIntensity: 0.5
+  MoonIntensity: 0.4
   AmbientIntensity: 1
   SkyColor:
     key0:

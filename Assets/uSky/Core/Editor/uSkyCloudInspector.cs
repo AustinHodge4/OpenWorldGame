@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Reflection;
+using UnityEditor;
 
-namespace UnityEditor
+namespace uSky
 {
 	[CustomEditor(typeof(DistanceCloud))]
 	public class uSkyCloudInspector : Editor {

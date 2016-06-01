@@ -1,6 +1,8 @@
 // Upgrade NOTE: replaced '_Object2World' with 'unity_ObjectToWorld'
 
-Shader "uSky/uSkyBox U5" 
+// For Unity 5 Only!
+
+Shader "uSky/uSkyBox" 
 {
 Properties {
 
@@ -43,6 +45,7 @@ SubShader
 			#ifdef NIGHTSKY_ON
 			float2	moonTC			: TEXCOORD2;
 			half	nightConst		: TEXCOORD3;
+			float3	spaceTC			: TEXCOORD4;
 			#endif
 		};
 		
@@ -51,6 +54,7 @@ SubShader
 		uniform half3		_betaR, _betaM, _miePhase_g, _mieConst; 
 		uniform half4		_NightZenithColor,_GroundColor;
 		uniform float3		_SunDir;
+		uniform float4x4 	rotationMatrix;
 		
 		// x = Sunset, y = Day, z = Night 
 		uniform half4		_SkyMultiplier;
@@ -69,7 +73,7 @@ SubShader
 			OUT.worldPos = normalize(mul((float3x3)unity_ObjectToWorld, v.vertex.xyz));
 
 			float t = OUT.worldPos.y;
-			OUT.zenithAngle.xyz = max(6e-2, t + 6e-2) + (max(0.0, -t) * _GroundColor.xyz);
+			OUT.zenithAngle.xyz = max(6e-2, t + 6e-2) + (max(0.0, -t ) * _GroundColor.xyz);
 			OUT.zenithAngle.w = max(0, t);
 			
 			#ifdef NIGHTSKY_ON
@@ -77,6 +81,7 @@ SubShader
 			float3 up =		_Moon_wtl[1].xyz;			
 			OUT.moonTC = float2( dot( right, v.vertex.xyz), dot( up, v.vertex.xyz) )/_MoonSize + 0.5;
 			OUT.nightConst = OUT.zenithAngle.w * _SkyMultiplier.z ; 
+			OUT.spaceTC = mul((float3x3)rotationMatrix,v.vertex.xyz);
 			#endif
 			return OUT;
 		}
@@ -107,32 +112,32 @@ SubShader
 			half3 inScatter = ( rayleigh * 0.75 + mie * miePhase ) * (( 1.0 + cosine * cosine ) * _SkyMultiplier.y);
 			
 			// add sun
-//			if ( _SunDir.y > -0.1 ){
+			if ( _SunDir.y > -0.1 ){
 			half sun = min(1e3, pow((1-cosine)* _SunSize, -1.5 ));
 			inScatter += sun * min(mie,IN.zenithAngle.w)* extinction ;
-//			}
+			}
 // --------------------------------------------------------------------------------
 			// night sky
-			
+
 			half moonMask = 0.0;
 			#ifdef NIGHTSKY_ON
-
-			// night horizontal gradient
-			inScatter += _NightHorizonColor.xyz * gr;
-			
-			// add moon and outer space
-			half4 moonAlbedo = tex2D( _MoonSampler, IN.moonTC.xy );
-			moonMask = moonAlbedo.a;
-			
-			half4 spaceAlbedo = texCUBE (_OuterSpaceCube, pos) * (1 - moonMask) * _OuterSpaceIntensity;
-			inScatter += (moonAlbedo.rgb * sign(_LightColor0.w) + spaceAlbedo.rgb )* IN.nightConst ;
-			
-			// add inner and outer moon corona
-			float moonDir = 1 + dot( pos, _Moon_wtl[2].xyz);
-			half m = moonDir;
-			inScatter += _MoonInnerCorona.xyz * (1.0 / (1.05 + m * _MoonInnerCorona.w));
-			inScatter += _MoonOuterCorona.xyz * (1.0 / (1.05 + m * _MoonOuterCorona.w));
-			
+			if ( _SunDir.y < 0.25 ){
+				// night horizontal gradient
+				inScatter += _NightHorizonColor.xyz * gr;
+				
+				// add moon and outer space
+				half4 moonAlbedo = tex2D( _MoonSampler, IN.moonTC.xy );
+				moonMask = moonAlbedo.a;
+				
+				half4 spaceAlbedo = texCUBE (_OuterSpaceCube, IN.spaceTC) * (1 - moonMask) * _OuterSpaceIntensity;
+				inScatter += (moonAlbedo.rgb * sign(_LightColor0.w) + spaceAlbedo.rgb )* IN.nightConst ;
+				
+				// add inner and outer moon corona
+				float moonDir = 1 + dot( pos, _Moon_wtl[2].xyz);
+				half m = moonDir;
+				inScatter += _MoonInnerCorona.xyz * (1.0 / (1.05 + m * _MoonInnerCorona.w));
+				inScatter += _MoonOuterCorona.xyz * (1.0 / (1.05 + m * _MoonOuterCorona.w));
+			}
 			#endif
 // --------------------------------------------------------------------------------		
 

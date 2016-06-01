@@ -1,13 +1,14 @@
 using UnityEngine; 
 using System.Collections; 
+using UnityEngine.EventSystems;
 
+[AddComponentMenu("Camera-Control/CameraOrbit")]
 public class CameraOrbit : MonoBehaviour 
 { 
     public Transform target; 
     
     public float targetHeight = 1.7f; 
     public float distance = 10.0f;
-//    public float offsetFromWall = 0.1f;
 
     public float maxDistance = 20; 
     public float minDistance = .6f; 
@@ -21,14 +22,7 @@ public class CameraOrbit : MonoBehaviour
     public int zoomRate = 40; 
 
     public float rotationDampening = 3.0f; 
-    public float zoomDampening = 5.0f; 
-    
-	public float LeftBorder   = 0f;
-	public float TopBorder    = 0f;
-//	public float RightBorder = 0f;
-//	public float BottomBorder = 0f;
-
-//    public LayerMask collisionLayers = -1;
+    public float zoomDampening = 5.0f;  
 
     private float xDeg = 0.0f; 
     private float yDeg = 0.0f; 
@@ -67,13 +61,13 @@ public class CameraOrbit : MonoBehaviour
         // If either mouse buttons are down, let the mouse govern camera position 
         if (Input.GetMouseButton(0)) 
         { 
-			if (!Input.GetKey ("mouse 0") || 
-			    Input.mousePosition.x < LeftBorder && Input.mousePosition.y > Screen.height - TopBorder) { // mask out upper left
-				return;
+			if ( EventSystem.current != null){
+				if ( EventSystem.current.IsPointerOverGameObject())
+					return;
 			}
 
             xDeg += Input.GetAxis ("Mouse X") * xSpeed * 0.02f; 
-            yDeg -= Input.GetAxis ("Mouse Y") * ySpeed * 0.02f; 
+            yDeg -= Input.GetAxis ("Mouse Y") * ySpeed * 0.02f; 	
         } 
         // otherwise, ease behind the target if any of the directional keys are pressed 
         else if (Input.GetAxis("Vertical") != 0 || Input.GetAxis("Horizontal") != 0) 

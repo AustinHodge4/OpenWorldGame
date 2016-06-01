@@ -20,12 +20,12 @@ RenderSettings:
   m_FogDensity: 0.01
   m_LinearFogStart: 0
   m_LinearFogEnd: 300
-  m_AmbientSkyColor: {r: 0.41764706, g: 0.5029412, b: 0.6147059, a: 0.75}
+  m_AmbientSkyColor: {r: 0.5803922, g: 0.7019608, b: 0.85882354, a: 1}
   m_AmbientEquatorColor: {r: 0.41764706, g: 0.5029412, b: 0.6147059, a: 0.75}
   m_AmbientGroundColor: {r: 0.41764706, g: 0.5029412, b: 0.6147059, a: 0.75}
   m_AmbientIntensity: 1
   m_AmbientMode: 3
-  m_SkyboxMaterial: {fileID: 2100000, guid: bbba73e9f642140e0a20e50dbee32d5f, type: 2}
+  m_SkyboxMaterial: {fileID: 2100000, guid: 365d13da5edb94b1fb213612c6c5c366, type: 2}
   m_HaloStrength: 0.5
   m_FlareStrength: 1
   m_FlareFadeSpeed: 3
@@ -58,9 +58,9 @@ LightmapSettings:
     m_BakeResolution: 50
     m_TextureWidth: 1024
     m_TextureHeight: 1024
-    m_AO: 1
+    m_AO: 0
     m_AOMaxDistance: 1
-    m_CompAOExponent: 1
+    m_CompAOExponent: 0
     m_CompAOExponentDirect: 0
     m_Padding: 2
     m_LightmapParameters: {fileID: 0}
@@ -69,7 +69,7 @@ LightmapSettings:
     m_DirectLightInLightProbes: 1
     m_FinalGather: 0
     m_FinalGatherFiltering: 1
-    m_FinalGatherRayCount: 256
+    m_FinalGatherRayCount: 1024
     m_ReflectionCompression: 2
   m_LightingDataAsset: {fileID: 0}
   m_RuntimeCPUUsage: 25
@@ -220,7 +220,7 @@ Transform:
   m_PrefabParentObject: {fileID: 400002, guid: 9692fbcc400c448dd87debc50ca433ef, type: 2}
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 473028504}
-  m_LocalRotation: {x: 0.7022054, y: 0.08311142, z: -0.70220554, w: 0.083111405}
+  m_LocalRotation: {x: 0.6634015, y: 0.24474166, z: -0.66340154, w: 0.24474162}
   m_LocalPosition: {x: 0, y: 2, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
@@ -237,8 +237,8 @@ Light:
   m_Enabled: 1
   serializedVersion: 7
   m_Type: 1
-  m_Color: {r: 0.9647059, g: 0.69803923, b: 0.3372549, a: 1}
-  m_Intensity: 1
+  m_Color: {r: 0.9764706, g: 0.827451, b: 0.6039216, a: 1}
+  m_Intensity: 0.5
   m_Range: 10
   m_SpotAngle: 30
   m_CookieSize: 10
@@ -322,7 +322,7 @@ GameObject:
   - 114: {fileID: 1880997990}
   - 114: {fileID: 1880997994}
   m_Layer: 0
-  m_Name: uSky Manager U4
+  m_Name: uSky Manager
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -340,7 +340,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   SkyUpdate: 1
-  Timeline: 17.1
+  Timeline: 15.3
   Longitude: 90
   Exposure: 1
   RayleighScattering: 1
@@ -402,7 +402,7 @@ MonoBehaviour:
   MoonOuterCorona: {r: 0.54, g: 0.66, b: 0.75, a: 0.5}
   MoonSize: 0.15
   m_moonLight: {fileID: 1996985132}
-  SkyboxMaterial: {fileID: 2100000, guid: bbba73e9f642140e0a20e50dbee32d5f, type: 2}
+  SkyboxMaterial: {fileID: 2100000, guid: 365d13da5edb94b1fb213612c6c5c366, type: 2}
   AutoApplySkybox: 1
   LinearSpace: 1
   Tonemapping: 0
@@ -476,7 +476,7 @@ MonoBehaviour:
     m_NumAlphaKeys: 2
   EnableMoonLighting: 1
   MoonIntensity: 0.5
-  AmbientIntensity: 0.75
+  AmbientIntensity: 1
   SkyColor:
     key0:
       serializedVersion: 2

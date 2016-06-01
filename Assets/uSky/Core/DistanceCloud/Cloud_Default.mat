@@ -32,9 +32,6 @@ Material:
         name: Mask
       second: 0
     - first:
-        name: RotateAround
-      second: 0.2
-    - first:
         name: RotateSpeed
       second: 0.2
     - first:
@@ -49,13 +46,10 @@ Material:
     - first:
         name: USKY_MAPPING
       second: 0
-    - first:
-        name: USKY_MASK
-      second: 0
     m_Colors:
     - first:
         name: ShadeColorFromSky
-      second: {r: 0.17994449, g: 0.27207837, b: 0.4249722, a: 0.756166}
+      second: {r: 0.29605272, g: 0.45076588, b: 0.7083488, a: 1}
     - first:
         name: ShadeColorFromSun
-      second: {r: 0.8709333, g: 0.6453612, b: 0.40559763, a: 0.91104335}
+      second: {r: 0.9646863, g: 0.71569365, b: 0.46207705, a: 1}

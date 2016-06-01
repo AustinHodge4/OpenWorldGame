@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections;
+using UnityEngine.EventSystems;
 
 /// MouseLook rotates the transform based on the mouse delta.
 /// Minimum and Maximum values can be used to constrain the possible rotation
@@ -31,39 +32,28 @@ public class MouseLook2 : MonoBehaviour {
 
 	float rotationY = 0F;
 
-	public float LeftBorder   = 0f;
-//	public float RightBorder  = 0f;
-	public float TopBorder    = 0f;
-//	public float BottomBorder = 0f;
-
 	void Update ()
 	{
-		if (!Input.GetKey("mouse 0") || 
-//		    Input.mousePosition.x < LeftBorder || Input.mousePosition.x > Screen.width - RightBorder &&
-//		    Input.mousePosition.y > Screen.height - TopBorder || Input.mousePosition.y < BottomBorder)
-		    Input.mousePosition.x < LeftBorder && Input.mousePosition.y > Screen.height - TopBorder) // mask out upper left
-		{
-			return;
-		}
-		if (axes == RotationAxes.MouseXAndY)
-		{
-			float rotationX = transform.localEulerAngles.y + Input.GetAxis("Mouse X") * sensitivityX;
+		if (Input.GetMouseButton (0)) {
+			if (EventSystem.current != null) {
+				if (EventSystem.current.IsPointerOverGameObject ()) // mask out GUI
+					return;
+			}
+			if (axes == RotationAxes.MouseXAndY) {
+				float rotationX = transform.localEulerAngles.y + Input.GetAxis ("Mouse X") * sensitivityX;
 			
-			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
-			rotationY = Mathf.Clamp (rotationY, minimumY, maximumY);
+				rotationY += Input.GetAxis ("Mouse Y") * sensitivityY;
+				rotationY = Mathf.Clamp (rotationY, minimumY, maximumY);
 			
-			transform.localEulerAngles = new Vector3(-rotationY, rotationX, 0);
-		}
-		else if (axes == RotationAxes.MouseX)
-		{
-			transform.Rotate(0, Input.GetAxis("Mouse X") * sensitivityX, 0);
-		}
-		else
-		{
-			rotationY += Input.GetAxis("Mouse Y") * sensitivityY;
-			rotationY = Mathf.Clamp (rotationY, minimumY, maximumY);
+				transform.localEulerAngles = new Vector3 (-rotationY, rotationX, 0);
+			} else if (axes == RotationAxes.MouseX) {
+				transform.Rotate (0, Input.GetAxis ("Mouse X") * sensitivityX, 0);
+			} else {
+				rotationY += Input.GetAxis ("Mouse Y") * sensitivityY;
+				rotationY = Mathf.Clamp (rotationY, minimumY, maximumY);
 			
-			transform.localEulerAngles = new Vector3(-rotationY, transform.localEulerAngles.y, 0);
+				transform.localEulerAngles = new Vector3 (-rotationY, transform.localEulerAngles.y, 0);
+			}
 		}
 	}
 	

@@ -1,5 +1,25 @@
 fileFormatVersion: 2
 guid: bc53da157e08a478bb5f63b4cd3a6240
+labels:
+- usky
+- physically
+- atmosphere
+- atmospheric
+- sky
+- skybox
+- lighting
+- skyshop
+- horizion
+- scattering
+- pbs
+- timeofday
+- unistorm
+- dynamic
+- master
+- daynightcycle
+- cloud
+- fog
+- star
 NativeFormatImporter:
   userData: 
   assetBundleName: 

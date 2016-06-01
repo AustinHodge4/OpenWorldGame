@@ -115,8 +115,9 @@ namespace RootMotion.FinalIK {
 
 				r.isKinematic = false;
 
-				// Transfer velocity from animation
-				if (velocityWeight != 0f) {
+
+                // Transfer velocity from animation
+                if (velocityWeight != 0f) {
 					r.velocity = (deltaPosition / deltaTime) * velocityWeight;
 				}
 
@@ -200,22 +201,26 @@ namespace RootMotion.FinalIK {
 
 			for (int i = 0; i < rigidbones.Length; i++) {
 				rigidbones[i] = new Rigidbone(rigidbodies[i + firstIndex]);
-			}
+                rigidbones[i].collider.enabled = false;
 
-			// Find all the child Transforms
-			Transform[] C = (Transform[])GetComponentsInChildren<Transform>();
+            }
+
+            // Find all the child Transforms
+            Transform[] C = (Transform[])GetComponentsInChildren<Transform>();
 			children = new Child[C.Length - 1];
 
 			for (int i = 0; i < children.Length; i++) {
 				children[i] = new Child(C[i + 1]);
 			}
-		}
+           
+        }
 
 		// Smoothly blends out of Ragdoll
 		private IEnumerator DisableRagdollSmooth() {
 			// ...make all rigidbodies kinematic
 			for (int i = 0; i < rigidbones.Length; i++) {
 				rigidbones[i].r.isKinematic = true;
+                rigidbones[i].collider.enabled = false;
 			}
 
 			// Reset IK components
@@ -348,8 +353,13 @@ namespace RootMotion.FinalIK {
 
 			// Disable the Animator so it won't overwrite physics
 			animator.enabled = false;
-			
-			for (int i = 0; i < rigidbones.Length; i++) rigidbones[i].WakeUp(applyVelocity, applyAngularVelocity);
+
+            for (int i = 0; i < rigidbones.Length; i++)
+            {
+                rigidbones[i].collider.enabled = true;
+                rigidbones[i].WakeUp(applyVelocity, applyAngularVelocity);
+
+            }
 
 			// Remember some variables so we can revert to them when coming back from ragdoll
 			for (int i = 0; i < fixTransforms.Length; i++) {

@@ -1,7 +1,8 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class Seat : MonoBehaviour {
+public class Seat : MonoBehaviour
+{
 
     public Transform seat;
     public SimpleCarController car;
@@ -15,3 +16,4 @@ public class Seat : MonoBehaviour {
         }
     }
 }
+

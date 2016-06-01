@@ -1,3 +1,77 @@
+uSky 1.1.5 Change Log
+=======================
+- Added new uFogGradient script. It is simple gradient color setting that based on the Timeline for unity stardard fog color, nothing fancy. 
+It works well for forward rendering path. It has predefined sky color gradient keys, and user can manually change the fog color with any custom sky color.
+This script is useful for some case: transparent material, the objects are not in the Z-buffer, the unity water that use the stardard fog..etc.
+To use it: just simply apply this script to uSkyManager and turn on the Fog in the Lighting window. 
+Note: It does NOT need uSkyFogCamera to apply on Main Camera.
+
+- Added night sky rotation feature. If the night sky rotation enabled, the moon will be opposite direction of the sun, also the stars and outer space will rotate at night as well.
+ 
+- Fixed the incorrect default value of "Cloud Texture Scale" in uSkymapRenderer script.
+
+- Fixed the error of uSkymap shader for not completely initialized when compiled in PC.
+
+- Fixed the Star intensity keep getting brigther when undo the uSkyManager.
+
+- Changed the uSkyFog "Density" slider to higher maximum value. The range is now from 0.0001 to 1.
+
+
+uSky 1.1.4 Change Log
+=======================
+- Added Scattering Fog image effect. Please read the documentation for more detail.
+
+- Disconnect the Ground color from uSkyMananger with ambient Ground Color gradient. (It was connected in last version v1.1.3f4)
+This allow user to set skybox ground color indepenently. For instance skybox has a dark blue ground color as ocean color, 
+the ambient ground gradient has default grey color for the scene ambient lighting.
+( Other ambient gradient colors in uSkyManager attributes will remain connected with scene ambient.)
+
+- Fixed "Hemisphere_Mesh.fbx" Rectangular UVs. Less bunched up artefact at the top of the sky. (Thanks for user: Seith) 
+
+- Tweaked the Sunset fall off rate. It is slightly smoother when skybox day color is fading to sunset color.
+
+- Tweaked with less color saturation for the Distance cloud in Linear Color Space.n
+ 
+
+uSky 1.1.3f4 Change Log
+=======================
+*********************************************************************************************************
+NOTE:  THIS UPDATE VERSION WILL SUPPORT UNITY 5 ONLY! DO NOT INSTALL IN UNITY 4!
+*********************************************************************************************************
+
+- Added "namespace uSky" in scripts to prevent conflicts with other third-party code. 
+To access the uSky script other then uSkyManager from your custom script that just simply add "using uSky" (with capital "S").
+
+- Added new Unity 5 GUI demo and GUI prefabs.
+
+- Added Tooltip in all the attributes in uSkyManager.
+
+- Improved the Distance cloud supports multiple cameras with different distance far clipping planes. For instance, the main camera far clipping planes is 1500,
+Reflection probe camera far clipping planes is 400, now they are all render the cloud properly as expected.
+Note: In Unity 5, If you switch Scene window shading mode to "Wireframe", you will see a small hemisphere mesh (it is for the cloud) at zero position of the world. 
+It is completely normal, when you switch back shading mode to "Shade", it will be gone and everything render as normal.
+
+- Optimized the uSkyLight script and improved Ambient gradient setting, the uSkyManager color setting of day time will affect the gradient output for ambient color.
+  Also they can be easily reset from the upper corner "gear" icon.
+
+- Improved the rayleigh scattering setting. Balanced the color and brightness when the rayleigh value is more than one.
+
+- Fixed and clean up unnecessary garbage collect cause by "string" of the shader keyword codes in uSkyManager. 
+
+- When apply new uSkyManager to a new scene, uSkyManager will try to find the "Directional Light" and automatically attach it as the sun Light.
+
+- Removed the "Ambient Intensity" setting. It was more usefull for Unity 4. However in Unity 5 you will rarely use it, and 99% situation will stay in value 1.
+Of course user can still change it in Ligthing window setting. 
+
+- Changed the Longitude Range from (0 ~ 360) to (-180 ~ 180).
+
+- Since this version is not supporting Unity 4 anymore. Some of the uSky codes have been clean up for Unity 5. 
+It won't get API update message in Editor when import uSky.
+
+- The uSky folders hierarchy has been Rearranged.
+
+
+
 uSky 1.1.2 Change Log
 =======================
 
@@ -8,11 +82,11 @@ NOTE:  THIS WILL BE THE LAST VERSION THAT SUPPORT UNITY 4, NEXT UPDATE VERSION W
 - Changed "Night Zenith Color" color setting to gradient. That give user total control the night sky color from sunset to mid night. 
 Now default night sky color is slightly darker.
 
-- In Unity 5, Reflection of the skybox Outer Space cubemap has been enabled. Especially when user set the "Outer Space intnesity" to very high or apply a bright custom galaxy cubemap that 
-it will be reflected in the reflective materials as expected. 
+- In Unity 5, Reflection of the skybox Outer Space cubemap has been enabled. Especially when user set the "Outer Space intensity" to very high or apply a bright custom galaxy cubemap that 
+it will be reflected in the reflection probe as expected. 
 
 - Added alternative "Distance Cloud Cheap" shader renders just simple flat shading for the cloud, it has been optimized for mobile usage.
-Known issues: The cloud color get too dark when applied Camera Tonemapping in Gamma Color Space.
+If The cloud color get too dark when applied Camera Tonemapping in Gamma Color Space, check the "Bypass sRGB Sampling" from cloud texture import settings
 
 - Improved "Distance cloud" material will always stay color correctly in Unity 4 Editor even if it is not in focus.
 

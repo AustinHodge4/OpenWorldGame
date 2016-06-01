@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
+using RootMotion.FinalIK;
 
-public class SimpleCharacterController : MonoBehaviour {
+public class SimpleCharacterController : MonoBehaviour
+{
 
     public float walkSpeed = 2f;
     public float runSpeed = 6f;
@@ -9,7 +11,8 @@ public class SimpleCharacterController : MonoBehaviour {
     public bool grounded = true;
     public bool disableControl = false;
     private CapsuleCollider characterCollider;
-    
+
+
     private float speed = 1;
     private float direction = 0;
 
@@ -21,12 +24,14 @@ public class SimpleCharacterController : MonoBehaviour {
     public float m_AnguarSpeedDampTime = 0.25f;
     public float m_DirectionResponseTime = 0.2f;
 
-    public bool ikActive = false;
-    public Transform rightHand;
-    public Transform rightHandObj = null;
-    public Transform lookObj = null;
 
     public bool usingPhone = false;
+    private FullBodyBipedIK fullBodyIK;
+    public Transform rightHand, leftHand;
+    public RagdollUtility ragdollUtility;
+    public Transform root;
+    public Rigidbody pelvis;
+
 
     public void Start()
     {
@@ -35,12 +40,12 @@ public class SimpleCharacterController : MonoBehaviour {
         m_DirectionId = Animator.StringToHash("Direction");
 
         characterCollider = GetComponent<CapsuleCollider>();
-        
+
+        fullBodyIK = GetComponent<FullBodyBipedIK>();
+
     }
     public void Update()
     {
-        
-
         if (CharacterInputController.CharacterUsePhone || CharacterInputController.CarUsePhone)
         {
             AnimatorStateInfo state = CharacterInputController.animatorController.GetCurrentAnimatorStateInfo(1);
@@ -50,20 +55,49 @@ public class SimpleCharacterController : MonoBehaviour {
             CharacterInputController.animatorController.SetBool("UsePhone", usingPhone);
 
             if (usingPhone)
+            {
+                fullBodyIK.enabled = false;
                 CharacterInputController.animatorController.SetLayerWeight(1, 1.0f);
+                rightHand.FindChild("Phone").gameObject.SetActive(true);
+
+            }
             else
+            {
+                fullBodyIK.enabled = true;
                 CharacterInputController.animatorController.SetLayerWeight(1, 0.0f);
+                rightHand.FindChild("Phone").gameObject.SetActive(false);
+            }
         }
-       
+
         if (CharacterInputController.inputType == ControlType.HUMAN && !disableControl)
         {
-            if (CharacterInputController.CharacterJump)
+            if (CharacterInputController.CharacterJump && grounded)
             {
                 CharacterInputController.animatorController.SetTrigger("Jump");
             }
-            
+
+            if (Input.GetKeyDown(KeyCode.R))
+            {
+                ragdollUtility.EnableRagdoll();
+            }
+
+            if (Input.GetKeyDown(KeyCode.P))
+            {
+                // Move the root of the character to where the pelvis is without moving the ragdoll
+                CharacterInputController.animatorController.SetTrigger("ResetBody");
+                Vector3 toPelvis = pelvis.position - root.position;
+                root.position += toPelvis;
+                pelvis.transform.position -= toPelvis;
+
+                ragdollUtility.DisableRagdoll();
+            }
             CalculateMovement();
             AnimatorMove();
+        }
+        if (disableControl)
+        {
+            CharacterInputController.animatorController.SetFloat(m_SpeedId, 0);
+            CharacterInputController.animatorController.SetFloat(m_AgularSpeedId, 0);
         }
     }
     void CalculateStep()
@@ -71,7 +105,7 @@ public class SimpleCharacterController : MonoBehaviour {
         float angle = -180f;
         Vector3 vector = Vector3.forward;
 
-        for(float i = angle; i < 45; i++)
+        for (float i = angle; i < 45; i++)
         {
             float refMag = Vector3.forward.sqrMagnitude;
             float z = Mathf.Rad2Deg * Mathf.Cos(i) * Mathf.Cos(i);
@@ -112,9 +146,9 @@ public class SimpleCharacterController : MonoBehaviour {
         {
             direction = 0.0f;
         }
-        
+
     }
-   
+
     void AnimatorMove()
     {
         if (CharacterInputController.CharacterRun)
@@ -126,30 +160,31 @@ public class SimpleCharacterController : MonoBehaviour {
 
         direction *= 180;
         AnimatorStateInfo state = CharacterInputController.animatorController.GetCurrentAnimatorStateInfo(0);
-        
+
         bool inTransition = CharacterInputController.animatorController.IsInTransition(0);
         bool inIdle = state.IsName("Locomotion.Idle");
         bool inTurn = state.IsName("Locomotion.TurnOnSpot") || state.IsName("Locomotion.PlantNTurnLeft") || state.IsName("Locomotion.PlantNTurnRight");
         bool inWalkRun = state.IsName("Locomotion.WalkRun");
         bool inJump = state.IsName("Jump");
-       
+
         if (inJump)
         {
             if (!inTransition)
             {
                 characterCollider.height = CharacterInputController.animatorController.GetFloat("ColliderHeight");
-            }
-            Ray ray = new Ray(transform.position + Vector3.up, -Vector3.up);
-            RaycastHit hitInfo = new RaycastHit();
-            if(Physics.Raycast(ray, out hitInfo))
-            {
-                if(hitInfo.distance > 1.75f)
+
+                Ray ray = new Ray(transform.position + Vector3.up, -Vector3.up);
+                RaycastHit hitInfo = new RaycastHit();
+                if (Physics.Raycast(ray, out hitInfo))
                 {
-                    CharacterInputController.animatorController.MatchTarget(hitInfo.point, Quaternion.identity, AvatarTarget.Root, new MatchTargetWeightMask(new Vector3(0, 1, 0), 0), 0.5f, 0.68f);
+                    if (hitInfo.distance > 1.5f)
+                    {
+                        CharacterInputController.animatorController.MatchTarget(hitInfo.point, Quaternion.identity, AvatarTarget.Root, new MatchTargetWeightMask(new Vector3(0, 1, 0), 0), 0.5f, 0.68f);
+                    }
                 }
             }
         }
-    
+
         float speedDampTime = inIdle ? 0 : m_SpeedDampTime;
         float angularSpeedDampTime = inWalkRun || inTransition ? m_AnguarSpeedDampTime : 0;
         float directionDampTime = inTurn || inTransition ? 1000000 : 0;
@@ -160,45 +195,7 @@ public class SimpleCharacterController : MonoBehaviour {
         CharacterInputController.animatorController.SetFloat(m_AgularSpeedId, angularSpeed, angularSpeedDampTime, Time.deltaTime);
         CharacterInputController.animatorController.SetFloat(m_DirectionId, direction, directionDampTime, Time.deltaTime);
     }
-    void OnAnimatorIK()
-    {
-        if (CharacterInputController.animatorController)
-        {
 
-            //if the IK is active, set the position and rotation directly to the goal. 
-            if (ikActive)
-            {
-
-                // Set the look target position, if one has been assigned
-                if (lookObj != null)
-                {
-                    CharacterInputController.animatorController.SetLookAtWeight(1);
-                    CharacterInputController.animatorController.SetLookAtPosition(lookObj.position);
-                }
-
-                // Set the right hand target position and rotation, if one has been assigned
-                if (rightHandObj != null)
-                {
-                    rightHandObj.SetParent(rightHand);
-                    rightHandObj.localPosition = Vector3.zero;
-                    //CharacterInputController.animatorController.SetIKPositionWeight(AvatarIKGoal.RightHand, 1);
-                    //CharacterInputController.animatorController.SetIKRotationWeight(AvatarIKGoal.RightHand, 1);
-                    //CharacterInputController.animatorController.SetIKPosition(AvatarIKGoal.RightHand, rightHandObj.position);
-                    //CharacterInputController.animatorController.SetIKRotation(AvatarIKGoal.RightHand, rightHandObj.rotation);
-                }
-
-            }
-
-            //if the IK is not active, set the position and rotation of the hand and head back to the original position
-            else
-            {
-                rightHandObj.SetParent(null);
-                CharacterInputController.animatorController.SetIKPositionWeight(AvatarIKGoal.RightHand, 0);
-                CharacterInputController.animatorController.SetIKRotationWeight(AvatarIKGoal.RightHand, 0);
-                CharacterInputController.animatorController.SetLookAtWeight(0);
-            }
-        }
-    }
     void OnCollisionEnter(Collision collision)
     {
         if (!grounded)
@@ -206,7 +203,7 @@ public class SimpleCharacterController : MonoBehaviour {
     }
     void OnCollisionStay(Collision collision)
     {
-            TrackGrounded(collision);
+        TrackGrounded(collision);
     }
     void OnCollisionExit(Collision collision)
     {
@@ -240,9 +237,11 @@ public class SimpleCharacterController : MonoBehaviour {
                     transform.SetParent(col.gameObject.GetComponent<Seat>().seat);
                     CharacterInputController.animatorController.SetBool("InCar", true);
                     GetComponent<Rigidbody>().isKinematic = true;
+                    fullBodyIK.enabled = false;
+                    GetComponent<GrounderFBBIK>().enabled = false;
                     GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeAll;
-                   
-                   
+
+
                     col.gameObject.GetComponent<Seat>().car.driver = transform;
                     CharacterInputController.SwitchInputType(ControlType.CAR);
                 }
@@ -252,5 +251,6 @@ public class SimpleCharacterController : MonoBehaviour {
     IEnumerator Wait(float seconds)
     {
         yield return new WaitForSeconds(seconds);
+
     }
 }

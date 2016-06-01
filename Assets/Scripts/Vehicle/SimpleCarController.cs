@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
+
 [System.Serializable]
 public class AxleInfo
 {
@@ -63,7 +64,7 @@ public class SimpleCarController : MonoBehaviour
         if (groundedR)
             GetComponent<Rigidbody>().AddForceAtPosition(wheelR.transform.up * antiRollForce, wheelR.transform.position);
     }
-    
+
     public void Update()
     {
         if (CharacterInputController.inputType == ControlType.CAR)
@@ -86,9 +87,11 @@ public class SimpleCarController : MonoBehaviour
                 driver.SetParent(null);
                 CharacterInputController.animatorController.SetBool("InCar", false);
                 driver.position = driverExit.position;
+                driver.rotation = Quaternion.identity;
                 driver.GetComponent<Rigidbody>().isKinematic = false;
                 driver.GetComponent<Rigidbody>().constraints = RigidbodyConstraints.FreezeRotation;
-
+                driver.GetComponent<RootMotion.FinalIK.FullBodyBipedIK>().enabled = true;
+                driver.GetComponent<RootMotion.FinalIK.GrounderFBBIK>().enabled = true;
                 driver.GetComponent<CapsuleCollider>().enabled = true;
                 CharacterInputController.SwitchInputType(ControlType.HUMAN);
                 driver = null;
@@ -98,7 +101,7 @@ public class SimpleCarController : MonoBehaviour
     }
     public void FixedUpdate()
     {
-     
+
         float motor = maxMotorTorque * CharacterInputController.Acceleration;
         float steering = maxSteeringAngle * CharacterInputController.Turn;
         float braking = maxMotorTorque;
@@ -114,7 +117,7 @@ public class SimpleCarController : MonoBehaviour
             {
                 axleInfo.leftWheel.motorTorque = motor;
                 axleInfo.rightWheel.motorTorque = motor;
-                
+
                 axleInfo.leftWheel.brakeTorque = CharacterInputController.Brake ? braking : 0;
                 axleInfo.rightWheel.brakeTorque = CharacterInputController.Brake ? braking : 0;
 
@@ -125,5 +128,5 @@ public class SimpleCarController : MonoBehaviour
             ApplyAntiRoll(axleInfo.leftWheel, axleInfo.rightWheel);
         }
     }
-    
+
 }

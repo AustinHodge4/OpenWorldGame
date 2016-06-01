@@ -16,7 +16,6 @@ SubShader
 		struct v2f 
 		{
 			float4	pos 		: SV_POSITION;
-			fixed3	color		: COLOR;
 			float2	texcoord 	: TEXCOORD0;
 			float2	cloudTC 	: TEXCOORD1;
 		};

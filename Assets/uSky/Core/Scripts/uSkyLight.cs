@@ -2,256 +2,234 @@ using UnityEngine;
 using System.Collections;
 using UnityEngine.Rendering;
 
-[ExecuteInEditMode]
-[AddComponentMenu("uSky/uSky Light")]
-[RequireComponent (typeof (uSkyManager))]
-public class uSkyLight : MonoBehaviour {
-	
-	private uSkyManager m_uSM;
-	
-	[Range(0f,4f)]
-	public float SunIntensity = 1.0f;
-	
-	public Gradient LightColor = new Gradient();
-	
-	public bool EnableMoonLighting = true;
-	
-	[Range(0f,2f)]
-	public float MoonIntensity = 0.4f;
-	
-	[Header("Ambient")]
-	[Range(0f,1f)]
-	public float AmbientIntensity = 1.0f;
+namespace uSky
+{
+	[ExecuteInEditMode]
+	[AddComponentMenu("uSky/uSky Light")]
+	[RequireComponent (typeof (uSkyManager))]
+	public class uSkyLight : MonoBehaviour {	
 
-	public Gradient SkyColor = new Gradient();
-	#if UNITY_5
-	public Gradient EquatorColor = new Gradient();
-	public Gradient GroundColor = new Gradient();
-	#endif
-	
-	private float currentTime;
-	private float dayTime;
-	private float nightTime;
-	
-	protected uSkyManager uSM {
-		get{
-			if (m_uSM == null) {
-				m_uSM = this.gameObject.GetComponent<uSkyManager>();
-				if (m_uSM == null)
-					Debug.Log(" Can't not find uSkyManager");
+		[Range(0f,4f)][Tooltip ("Brightness of the Sun (directional light)")]
+		public float SunIntensity = 1.0f;
+
+		[Tooltip ("The color of the both Sun and Moon light emitted")]
+		public Gradient LightColor = new Gradient()
+		{
+			colorKeys = new GradientColorKey[] {
+				new GradientColorKey(new Color32(055, 066, 077, 255), 0.23f),
+				new GradientColorKey(new Color32(245, 173, 084, 255), 0.26f),
+				new GradientColorKey(new Color32(249, 208, 144, 255), 0.32f),
+				new GradientColorKey(new Color32(252, 222, 186, 255), 0.50f),
+				new GradientColorKey(new Color32(249, 208, 144, 255), 0.68f),
+				new GradientColorKey(new Color32(245, 173, 084, 255), 0.74f),
+				new GradientColorKey(new Color32(055, 066, 077, 255), 0.77f),
+			},
+			alphaKeys = new GradientAlphaKey[] {
+				new GradientAlphaKey(1.0f, 0.0f),
+				new GradientAlphaKey(1.0f, 1.0f)
 			}
-			return m_uSM;
-		}
-	}
-	// check sun light
-	protected GameObject sunLight{
-		get{
-			if(uSM != null){
-				return (uSM.m_sunLight != null)? uSM.m_sunLight : null;
-			}else 
-				return null;
-		}
-	}
-	// check moon light
-	protected GameObject moonLight{
-		get{
-			if(uSM != null){
-				return (uSM.m_moonLight != null)? uSM.m_moonLight : null;
-			}else 
-				return null;
-		}
-	}
+		};
+		[Tooltip ("Toggle the Moon lighting during night time")]
+		public bool EnableMoonLighting = true;
 
-	// Gradient Alpha Key for all Gradient setting. In general alpha value is not using at all
-	private GradientAlphaKey[] gak {
-		get{
-			GradientAlphaKey[] _gak = new GradientAlphaKey[2];
-			_gak [0].alpha = 1f;
-			_gak [0].time = 0f;
-			_gak [1].alpha = 1f;
-			_gak [1].time = 1f;
-			return _gak;
-		}
-	}
-	void SetLightColorKey(){
-		
-		GradientColorKey[] lck = new GradientColorKey[7];
-		
-		lck [0].color = new Color (0.22f, 0.26f, 0.3f, 1f);
-		lck [0].time = 0.23f;
-		lck [1].color = new Color (0.96f, 0.678f, 0.33f, 1f);
-		lck [1].time = 0.26f;
-		lck [2].color = new Color (0.976f, 0.816f, 0.565f, 1f);
-		lck [2].time = 0.32f;
-		lck [3].color = new Color (0.984f, 0.871f, 0.729f, 1f);
-		lck [3].time = 0.50f;
-		lck [4].color = new Color (0.976f, 0.816f, 0.565f, 1f);
-		lck [4].time = 0.68f;
-		lck [5].color = new Color (0.96f, 0.678f, 0.33f, 1f);
-		lck [5].time = 0.74f;
-		lck [6].color = new Color (0.22f, 0.26f, 0.3f, 1f);
-		lck [6].time = 0.77f;
-		
-		LightColor.SetKeys (lck, gak);
-	}
-	
-	void SetSkyColorKey (){
-		GradientColorKey[] sck = new GradientColorKey[6];
-		sck [0].color = new Color (0.11f, 0.125f, 0.157f, 1f);
-		sck [0].time = 0.225f;
-		sck [1].color = new Color (0.215f, 0.255f, 0.247f, 1f);
-		sck [1].time = 0.25f;
-		sck [2].color = new Color (0.58f, 0.7f, 0.86f, 1f);
-		sck [2].time = 0.28f;
-		sck [3].color = new Color (0.58f, 0.7f, 0.86f, 1f);
-		sck [3].time = 0.72f;
-		sck [4].color = new Color (0.215f, 0.255f, 0.247f, 1f);
-		sck [4].time = 0.75f;
-		sck [5].color = new Color (0.11f, 0.125f, 0.157f, 1f);
-		sck [5].time = 0.775f;
-		
-		SkyColor.SetKeys (sck, gak);
-	}
-	#if UNITY_5
-	void SetEquatorColorKey (){
-		GradientColorKey[] eck = new GradientColorKey[6];
-		eck [0].color = new Color (0.08f, 0.098f, 0.14f, 1f);
-		eck [0].time = 0.225f;
-		eck [1].color = new Color (0.38f, 0.32f, 0.098f, 1f);
-		eck [1].time = 0.25f;
-		eck [2].color = new Color (0.4f, 0.54f, 0.66f, 1f);
-		eck [2].time = 0.28f;
-		eck [3].color = new Color (0.4f, 0.54f, 0.66f, 1f);
-		eck [3].time = 0.72f;
-		eck [4].color = new Color (0.38f, 0.32f, 0.098f, 1f);
-		eck [4].time = 0.75f;
-		eck [5].color = new Color (0.08f, 0.098f, 0.14f, 1f);
-		eck [5].time = 0.775f;
-	
-		EquatorColor.SetKeys (eck, gak);
-	}
-	
-	void SetGroundColorKey (){
-		GradientColorKey[] gck = new GradientColorKey[4];
-		gck [0].color = new Color (0.08f, 0.08f, 0.08f, 1f);
-		gck [0].time = 0.21f;
-		gck [1].color = new Color (0.2f, 0.2f, 0.2f, 1f);
-		gck [1].time = 0.25f;
-		gck [2].color = new Color (0.2f, 0.2f, 0.2f, 1f);
-		gck [2].time = 0.75f;
-		gck [3].color = new Color (0.08f, 0.08f, 0.08f, 1f);
-		gck [3].time = 0.79f;
+		[Range(0f,2f)][Tooltip ("Brightness of the Moon (directional light)")]
+		public float MoonIntensity = 0.4f;
 
-		GroundColor.SetKeys (gck, gak);
-	}
-	#endif
-	
-	void OnEnable (){
-		// Check: if the gradient has only white color (blank), then load the predefined gradient key setting.
-		if (LightColor.Evaluate (0f).Equals (Color.white) && LightColor.Evaluate (0.5f).Equals (Color.white) && LightColor.Evaluate (1f).Equals (Color.white))
-			SetLightColorKey();
-		if (SkyColor.Evaluate (0f).Equals (Color.white) && SkyColor.Evaluate (0.5f).Equals (Color.white) && SkyColor.Evaluate (1f).Equals (Color.white))
-			SetSkyColorKey ();
-		#if UNITY_5
-		if (EquatorColor.Evaluate (0f).Equals (Color.white) && EquatorColor.Evaluate (0.5f).Equals (Color.white) && EquatorColor.Evaluate (1f).Equals (Color.white))
-			SetEquatorColorKey ();
-		if (GroundColor.Evaluate (0f).Equals (Color.white) && GroundColor.Evaluate (0.5f).Equals (Color.white) && GroundColor.Evaluate (1f).Equals (Color.white))
-			SetGroundColorKey ();
-		#endif
-	}
-	
-	void Start () {
-		if (uSM != null){
-			InitUpdate ();
+		[Tooltip ("Ambient light that shines into the scene.")]
+		public uSkyAmbient Ambient;
+		
+		private float currentTime	{ get { return (uSM != null)? uSM.Timeline01	: 1f; }}
+		private float dayTime		{ get { return (uSM != null)? uSM.DayTime		: 1f; }} 
+		private float nightTime		{ get { return (uSM != null)? uSM.NightTime		: 0f; }}
+		private float sunsetTime 	{ get { return (uSM != null)? uSM.SunsetTime	: 1f; }} 
+
+
+		private uSkyManager _uSM = null;
+		private uSkyManager uSM {
+			get{
+				if (_uSM == null) {
+					_uSM = this.gameObject.GetComponent<uSkyManager>();
+					#if UNITY_EDITOR
+					if (_uSM == null)
+						Debug.Log("Can't not find uSkyManager, please apply uSkyLight to uSkyManager gameobject");
+					#endif
+				}
+				return _uSM;
+			}
 		}
-	}
-	
-	void Update (){
-		if (uSM != null) {
-			if (uSM.SkyUpdate) {
+		// check sun light gameobject
+		private GameObject sunLightObj{
+			get{
+				if(uSM != null){
+					return (uSM.m_sunLight != null)? uSM.m_sunLight : null;
+				}else 
+					return null;
+			}
+		}
+		// check moon light gameobject
+		private GameObject moonLightObj{
+			get{
+				if(uSM != null){
+					return (uSM.m_moonLight != null)? uSM.m_moonLight : null;
+				}else 
+					return null;
+			}
+		}
+
+		private Light _sun_Light;
+		private Light sun_Light {
+			get {
+				if (sunLightObj)
+					_sun_Light = sunLightObj.GetComponent<Light> ();
+				if (_sun_Light)
+					return _sun_Light;
+				else return null;
+			}
+		}
+
+		private Light _moon_Light;
+		private Light moon_Light {
+			get {
+				if (moonLightObj)
+					_moon_Light = moonLightObj.GetComponent<Light> ();
+				if (_moon_Light)
+					return _moon_Light;
+				else return null;
+			}
+		}
+
+		void Start () {
+			if (uSM != null)
 				InitUpdate ();
-				
+		}
+		
+		void Update (){
+			if (uSM != null) {
+				if (uSM.SkyUpdate)
+					InitUpdate ();
 			}
 		}
-	}
-	
-	void InitUpdate (){
-		SunAndMoonLightUpdate ();
-		#if UNITY_5
-		if (RenderSettings.ambientMode == AmbientMode.Trilight)
-			AmbientGradientUpdate ();
-		else
-			if (RenderSettings.ambientMode == AmbientMode.Flat)
-				RenderSettings.ambientLight = CurrentSkyColor;
-		RenderSettings.ambientIntensity = AmbientIntensity;
-		#else
-			AmbientUpdateU4 (); // Unity 4 ambient
-		#endif
-	}
-	
-	void SunAndMoonLightUpdate (){
-		currentTime = uSM.Timeline01;
-		dayTime = uSM.DayTime;
-		nightTime = uSM.NightTime;
+		
+		void InitUpdate (){
+			SunAndMoonLightUpdate ();
 
-		// TODO: clean up and optimize this codes
-		if (sunLight != null)
-		if (sunLight.GetComponent<Light> () != null) {
-			sunLight.GetComponent<Light> ().intensity = uSM.Exposure * SunIntensity * dayTime;
-			sunLight.GetComponent<Light> ().color = CurrentLightColor * dayTime;
-			// enable at Day, disable at Night
-			if ( currentTime < 0.24f || currentTime > 0.76f )
-				sunLight.GetComponent<Light> ().enabled = false;
+			if (RenderSettings.ambientMode == AmbientMode.Trilight)
+				AmbientGradientUpdate ();
+			else
+//				if (RenderSettings.ambientMode == AmbientMode.Flat)
+				RenderSettings.ambientLight = CurrentSkyColor; // update it for cloud color
+		}
+		
+		void SunAndMoonLightUpdate (){
+
+			if (sunLightObj != null) {
+				if (sun_Light != null) {
+					sun_Light.intensity = uSM.Exposure * SunIntensity * dayTime;
+					sun_Light.color = CurrentLightColor * dayTime;
+					// enable at Day, disable at Night
+					sun_Light.enabled = (currentTime < 0.24f || currentTime > 0.76f) ? false : true;
+				}
+			}
+			if (moonLightObj != null) {
+				if (moon_Light != null) {
+					moon_Light.intensity = uSM.Exposure * MoonIntensity * nightTime;
+					moon_Light.color = CurrentLightColor * nightTime;
+					// enable at Night, disable at Day
+					moon_Light.enabled = (currentTime > 0.26f && currentTime < 0.74f || EnableMoonLighting == false) ?
+							 false : (EnableMoonLighting) ? true : false;
+					if(!EnableMoonLighting)
+						forceSunEnableAtNight ();
+				}
+			}
 			else 
-				sunLight.GetComponent<Light> ().enabled = true;
+				forceSunEnableAtNight ();
+			
 		}
-		if ( moonLight != null) {
-			if (moonLight.GetComponent<Light> () != null) {
-				moonLight.GetComponent<Light> ().intensity =  uSM.Exposure * MoonIntensity * nightTime;
-				moonLight.GetComponent<Light> ().color = CurrentLightColor * nightTime;
-				// enable at Night, disable at Day
-				if ( currentTime > 0.26f && currentTime < 0.74f || EnableMoonLighting == false)
-					moonLight.GetComponent<Light> ().enabled = false;
-				else if(EnableMoonLighting)
-					moonLight.GetComponent<Light> ().enabled = true;
+		// Enable the sun if no moon light in the scene, uSky need at least one active light,
+		// Other wise the moon texture in the night sky will be missing.
+		private void forceSunEnableAtNight (){
+			if (!sun_Light) return;
+			sun_Light.enabled = true;
+			sun_Light.intensity = Mathf.Max (1e-3f, sun_Light.intensity);
+			sun_Light.color = new Color(sun_Light.color.r, sun_Light.color.g, sun_Light.color.b,
+			                            Mathf.Max (1e-2f,sun_Light.color.a ));
+		}
+		private float exposure {
+			get{ return (uSM != null)? uSM.Exposure : 1.0f; }
+		}
+
+//		private Color groundColorTint {
+//			get{ return (uSM != null)? uSM.m_GroundColor : new Color(0.369f, 0.349f, 0.341f, 1f); }
+//		}
+
+		private float rayleighSlider {
+			get{ return (uSM != null)? uSM.RayleighScattering : 1.0f; }
+		}
+
+		public Color CurrentLightColor {
+			get{ return LightColor.Evaluate (currentTime); }
+		}
+
+		void AmbientGradientUpdate ()
+		{
+			RenderSettings.ambientSkyColor = CurrentSkyColor;
+			RenderSettings.ambientEquatorColor = CurrentEquatorColor;
+			RenderSettings.ambientGroundColor = CurrentGroundColor;
+		}
+
+		public Color CurrentSkyColor {
+			get{ return colorOffset (Ambient.SkyColor.Evaluate (currentTime), 0.15f, 0.7f, false); }
+		}
+
+		public Color CurrentEquatorColor {
+			get{ return colorOffset (Ambient.EquatorColor.Evaluate (currentTime), 0.15f, 0.9f, false); }
+		}
+
+		public Color CurrentGroundColor {
+			get{
+				return  colorOffset (Ambient.GroundColor.Evaluate (currentTime), 0.25f, 0.85f, true);
+//				return	(Ambient.GroundColor.Evaluate (currentTime)* exposure); 
 			}
 		}
-	}
-	
-	public Color CurrentLightColor{
-		get{
-			return LightColor.Evaluate (currentTime);
-		}
-	}
-	
-	public Color CurrentSkyColor{
-		get{
-			return SkyColor.Evaluate (currentTime) * uSM.Exposure ;
-		}
-	}
+ 
+		// get the approximation of color change from uSkymanager and then apply to final output of the gradient colors
+		private Color colorOffset ( Color currentColor, float offsetRange, float rayleighOffsetRange, bool IsGround ){
+			// default uSky βsR = (5.81, 13.57, 33.13) in kilo unit
+			Vector3 _betaR = (uSM != null)? uSM.BetaR * 1e3f : new Vector3 (5.81f, 13.57f, 33.13f);
+			// BlendWeight
+			Vector3 t = new Vector3 (0.5f, 0.5f, 0.5f); // neutral 
 
-	// For unity 4 ambient light function
-	void AmbientUpdateU4 (){
-		RenderSettings.ambientLight = CurrentSkyColor * AmbientIntensity;
-	}
+//			if (IsGround)
+//				t = new Vector3 (_betaR.x /  5.81f * (groundColorTint.r / 0.369f * 0.5f),
+//				                 _betaR.y / 13.57f * (groundColorTint.g / 0.349f * 0.5f),
+//				                 _betaR.z / 33.13f * (groundColorTint.b / 0.341f * 0.5f));
+//			else
+				t = new Vector3 (_betaR.x /  5.81f * 0.5f ,
+			                     _betaR.y / 13.57f * 0.5f ,
+			                     _betaR.z / 33.13f * 0.5f );
 
-	#if UNITY_5
-	void AmbientGradientUpdate (){
+			// switch BlendWeight to oppsite value when sunset time is present
+			if(!IsGround)
+			t = Vector3.Lerp (new Vector3 ( Mathf.Abs(1 - t.x), Mathf.Abs( 1 - t.y), Mathf.Abs( 1 - t.z)), t, sunsetTime);
 
-		RenderSettings.ambientSkyColor = CurrentSkyColor;
-		RenderSettings.ambientEquatorColor = CurrentEquatorColor;
-		RenderSettings.ambientGroundColor = CurrentGroundColor;
-	}
-	
-	public Color CurrentEquatorColor{
-		get{
-			return EquatorColor.Evaluate (currentTime) * uSM.Exposure;
+			// set BlendWeight to neutral when night time is present
+			t = Vector3.Lerp (new Vector3 ( 0.5f, 0.5f, 0.5f), t, dayTime);
+
+			Vector3 c0 = new Vector3();
+			// add betaR offset based on "t" to interpolates
+//			if(!IsGround)
+			c0 = new Vector3 (Mathf.Lerp (currentColor.r - offsetRange, currentColor.r + offsetRange, t.x),
+			                          Mathf.Lerp (currentColor.g - offsetRange, currentColor.g + offsetRange, t.y),
+			                          Mathf.Lerp (currentColor.b - offsetRange, currentColor.b + offsetRange, t.z));
+
+			// add rayleigh offset from "rayleighSlider"
+			Vector3 c2 = new Vector3 (c0.x / _betaR.x, c0.y / _betaR.y, c0.z / _betaR.z) * 4f ;
+
+			c0 = (rayleighSlider < 1.0f) ? Vector3.Lerp (Vector3.zero, c0, rayleighSlider) :
+				Vector3.Lerp (c0, c2 , Mathf.Max(0f,(rayleighSlider - 1f)) / 4f * rayleighOffsetRange);
+
+			return new Color(c0.x,c0.y,c0.z,1) * exposure;
 		}
+
 	}
-	public Color CurrentGroundColor{
-		get{
-			return GroundColor.Evaluate (currentTime) * uSM.Exposure;
-		}
-	}
-	#endif
 }

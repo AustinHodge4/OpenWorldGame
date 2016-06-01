@@ -1,7 +1,9 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class CharacterCamera : MonoBehaviour {
+
+public class CharacterCamera : MonoBehaviour
+{
     public Transform character;
     public float distance = 5.0f;
     public float height = 2.0f;
@@ -64,3 +66,4 @@ public class CharacterCamera : MonoBehaviour {
         return Mathf.Clamp(angle, min, max);
     }
 }
+
