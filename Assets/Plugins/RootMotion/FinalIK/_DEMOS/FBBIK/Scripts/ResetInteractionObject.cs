@@ -29,6 +29,7 @@ namespace RootMotion.Demos {
 		void OnPickUp(Transform t) {
 			StopAllCoroutines();
 			StartCoroutine(ResetObject(Time.time + resetDelay));
+			Debug.Log(t.name);
 		}
 
 		// Reset after a certain delay

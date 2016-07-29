@@ -46,6 +46,15 @@ public class SimpleCharacterController : MonoBehaviour
     }
     public void Update()
     {
+		if(leftHand){
+			if(leftHand.childCount > 5)
+				print("Holding Item in LeftHand");
+		}
+		if(rightHand){
+			if(rightHand.childCount > 7)
+				print("Holding Item in RightHand");
+		}
+		
         if (CharacterInputController.CharacterUsePhone || CharacterInputController.CarUsePhone)
         {
             AnimatorStateInfo state = CharacterInputController.animatorController.GetCurrentAnimatorStateInfo(1);
@@ -100,23 +109,7 @@ public class SimpleCharacterController : MonoBehaviour
             CharacterInputController.animatorController.SetFloat(m_AgularSpeedId, 0);
         }
     }
-    void CalculateStep()
-    {
-        float angle = -180f;
-        Vector3 vector = Vector3.forward;
-
-        for (float i = angle; i < 45; i++)
-        {
-            float refMag = Vector3.forward.sqrMagnitude;
-            float z = Mathf.Rad2Deg * Mathf.Cos(i) * Mathf.Cos(i);
-            float x = Mathf.Rad2Deg * Mathf.Sin(i);
-
-            Vector3 point = new Vector3(x, 0, z);
-            point.Normalize();
-            Ray ray = new Ray(transform.position + Vector3.up, point);
-            Debug.DrawRay(ray.origin, ray.direction, Color.red);
-        }
-    }
+   
     void CalculateMovement()
     {
         Vector3 rootDirection = transform.forward;
